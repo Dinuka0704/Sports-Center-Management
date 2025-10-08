@@ -4,18 +4,22 @@ use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\ReturnController;
 use App\Http\Controllers\ReportController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', function() { return view('welcome'); });
 
-// Equipment CRUD
-Route::resource('equipment', EquipmentController::class);
+Route::get('/', function () {
+	return redirect()->route('login');
+});
 
-// Borrow an item
-Route::post('/borrow', [BorrowController::class, 'store'])->name('borrow.store');
+Route::middleware(['auth'])->group(function () {
+    Route::resource('equipment', EquipmentController::class);
+    Route::post('/borrow', [BorrowController::class, 'store'])->name('borrow.store');
+    Route::post('/return/{id}', [ReturnController::class, 'update'])->name('return.update');
+    Route::get('/report/borrow', [ReportController::class, 'borrowReport'])->name('report.borrow');
+});
 
-// Return an item
-Route::post('/return/{id}', [ReturnController::class, 'update'])->name('return.update');
+use Illuminate\Support\Facades\Auth;
 
-// Reports
-Route::get('/report/borrow', [ReportController::class, 'borrowReport'])->name('report.borrow');
+require __DIR__.'/auth.php';
 
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
